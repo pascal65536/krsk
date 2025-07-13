@@ -10,8 +10,9 @@ mysqlclient==2.2.7
 pillow==11.3.0
 pymorphy3==2.0.4
 pymorphy3-dicts-ru==2.4.417150.4580142
-requests==2.0.0
+requests==2.32.4
+setuptools==80.9.0
 sorl-thumbnail==12.11.0
 sqlparse==0.5.3
-typing_extensions==4.14.1
+urllib3==2.5.0
 webencodings==0.5.1
