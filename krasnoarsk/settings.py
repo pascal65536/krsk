@@ -59,7 +59,7 @@ WSGI_APPLICATION = "krasnoarsk.wsgi.application"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": ["tidings/templates", "templates"],
+        "DIRS": ["krasnoarsk/templates", "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
