@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /static/
+Disallow: /media/
+
+Allow: /feed/
+
+Sitemap: https://krasnoarsk.ru/sitemap.xml

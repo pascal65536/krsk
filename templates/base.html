@@ -1,0 +1,43 @@
+{% load static %}
+{% load get_tags %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Подключаем Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">   
+  <!-- Подключаем кастомные стили -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+  <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
+  
+  {% get_meta %}
+
+</head>
+  <body>
+    <!-- Полноэкранный -->
+    {% include "article/advert_yandex_10.html" %} 
+
+      <div class="container">
+        {% get_main_menu %}
+      </div>
+
+      <div class="container">
+        {% block content %}
+        {% endblock %}
+      </div>
+
+      <div class="container">
+        {% get_footer %}
+      </div>      
+
+    <!-- In-Image -->
+    {% include "article/advert_yandex_11.html" %} 
+    
+    <!-- Подключаем Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>  
+  </body>
+</html>

@@ -1,0 +1,39 @@
+{% load thumbnail %}
+{% load static %}
+
+
+<!-- Правая колонка: Превью новостей -->
+<div class="col-xl-4 col-12">
+  <h2>Популярные новости</h2>
+  {% for post in populate_qs %}
+  <div class="news-item">
+    <div class="row">
+      <div class="col-4">
+        <a href="{% url 'post_detail' post.id %}">
+        {% if post.has_image %}
+          {% thumbnail post.image.picture "120x120" crop="center" as im %}
+          <img class="rounded1" src="{{ im.url }}" alt="{{ post.title }}"/>
+          {% endthumbnail %}
+        {% else %}
+          <img class="rounded" src="{% static 'img/120x120.png' %}" alt="{{ post.title }}"/>
+        {% endif %}
+        </a>
+      </div>
+      <div class="col-8">
+        <h3><a href="{% url 'post_detail' post.id %}">
+          {% if context.user.is_staff and post.deleted %}<del>{% endif %}
+            {{ post.title }}
+          {% if context.user.is_staff and post.deleted %}</del>{% endif %}  
+        </a></h3>
+        <p class="text-muted">
+          {{ post.date_post|date:'Y-m-d' }}
+          {% if context.user.is_staff %}[{{ post.view }}]{% endif %}  
+        </p>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  <div class="bg-danger">
+    {% include "article/advert_yandex_04.html" %}
+  </div>    
+</div>

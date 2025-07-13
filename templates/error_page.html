@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
+        {{ error_message }} | <a href="{% url 'post_list' %}"><strong>Вернуться на главную</strong></a>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div class="mt-4">
+        {% include "article/advert_yandex_02.html" %}
+    </div>	    
+{% endblock content %}

@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+{% load static %}
+{% load get_tags %}
+
+{% block content %}
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Основная статья -->
+        <div class="col-xl-8 col-12 news-left">
+            <div class="card mb-4">
+
+              {% if post.has_image %}
+              {% thumbnail post.image.picture "855x640" crop="center" as im %}
+              <img class="img-fluid card-img-top article-image"
+                    src="{{ im.url }}"
+                    alt="{{ post.title }}"
+                    title="{{ post.title }}"
+                    width="{{ im.width }}"
+                    height="{{ im.height }}"
+                    itemprop="contentUrl" />
+              {% endthumbnail %}
+              <span itemprop="description">{{ post.image.description|default:"" }}</span>
+              {% endif %}
+
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <p class="card-text"><small class="text-muted">{{post.date_post|date:'Y-m-d'}}</small></p>
+                        <p class="card-text"><small class="text-muted"><a href="{% url 'post_list' %}?category={{ post.category.slug }}">{{ post.category }}</a></small></p>
+                    </div>
+
+                    <h1 class="card-title">
+                      {% if request.user.is_staff and post.deleted %}<del>{% endif %}
+                      {{ post.title }}
+                      {% if request.user.is_staff and post.deleted %}</del>{% endif %}                      
+                      {% if request.user.is_staff %}<a title="edit" href="{% url 'admin:article_post_change' post.id %}"><i class="bi bi-pencil small"></i></a>{% endif %}</h1>           
+
+                    <p class="card-text text-muted">{{ post.lead }}</p>
+                    
+                    {% if request.user.is_staff %}
+                    <div class="mt-4 d-flex">
+                      <form action="{% url 'check_content' post.id %}" method="POST" class="px-1" enctype="multipart/form-data">{% csrf_token %}
+                          <span class="px-1">
+                              <i class="fas fa-copyright" title="plagiarism"></i>
+                              <button type="button submit" class="btn btn-danger" title="{{ post.plagiarism_json }}">{{ post.plagiarism }}</button>
+                            </span>
+                      </form>
+
+                      <form action="{% url 'tagging' post.id %}" method="POST" class="px-1" enctype="multipart/form-data">{% csrf_token %}
+                        <span class="px-1">
+                            <i class="fas fa-copyright" title="tagging"></i>
+                            <button type="button submit" class="btn btn-success" title="Tagging">Tagging</button>
+                          </span>
+                      </form>
+                    </div>
+                    {% endif %}
+                    
+                    {% include "article/advert_yandex_03.html" %}  
+
+                    <div class="mt-4">
+                        {{ post.text|safe }}
+                    </div>
+                    {% if request.user.is_staff %}
+                      <p class="card-text mt-4"><small class="text-muted">Просмотры: {{ post.view }} | Плагиат: {{ post.plagiarism }}%</small></p>
+                    {% endif %}
+
+                    {% if request.user.is_staff %}
+                      {% if post.authors %}
+                        <p class="card-text"><small class="text-muted">Авторы: {{ post.authors}}</small></p>
+                      {% endif %}
+                    {% endif %}
+
+                    {% if request.user.is_staff %}
+                    <div class="tags mt-3">
+                      {% for tag in tag_lst %}
+                      <span class="badge bg-light me-1">
+                        <a href="{% url 'post_list' %}?tag={{ tag }}">{{ tag }}</a>
+                      </span>
+                      {% endfor %}
+                      <!-- Добавьте больше тегов по мере необходимости -->
+                    </div>
+                    {% endif %}
+
+                  {% if request.user.is_staff %}
+                  <div class="pb-3">
+                      <ul>
+                      {% for matches in post.plagiarism_json.matches %}
+                          {% if matches.url %}
+                          <li>
+                              <a href="{{ matches.url }}" target="_blank">
+                                  {{ matches.url }}
+                                  <strong>{{ matches.percent }}</strong>
+                              </a>
+                          </li>
+                          {% endif %}
+                      {% endfor %}
+                      {% for matches in post.plagiarism_json %}
+                          {% if matches.url %}
+                          <li>
+                              <a href="{{ matches.url }}" target="_blank">
+                                  {{ matches.url }}
+                                  <strong>{{ matches.percent }}</strong>
+                              </a>
+                          </li>
+                          {% endif %}
+                      {% endfor %}
+                      </ul>
+                  </div>
+                  {% endif %}
+                  
+                  <div class="bg-danger">
+                    {% include "article/advert_yandex_01.html" %}
+                  </div>    
+                </div>
+            </div>
+
+            {% get_category_qs %}
+
+          </div>
+        
+        {% get_populate_qs %}
+
+    </div>
+</div>
+
+{% endblock %}

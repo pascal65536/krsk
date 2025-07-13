@@ -1,0 +1,30 @@
+
+    <title>{{ title }}</title>
+
+    {% for link_dct in link_lst %}
+        <link {% for k, v in link_dct.items %} {{k}}="{{v}}" {% endfor %} />
+    {% endfor %}
+
+    {% for meta_dct in meta_lst %}
+        <meta {% for k, v in meta_dct.items %} {{k}}="{{v}}" {% endfor %} />
+    {% endfor %}
+
+
+<!-- Yandex.RTB -->
+<script>window.yaContextCb=window.yaContextCb||[]</script>
+<script src="https://yandex.ru/ads/system/context.js" async></script>
+
+    {% comment %}
+	<!-- opengraph -->
+	{% for og in setting_json.opengraph %}
+		{% if 'property' in og %}
+			<meta property="{{ og.property }}" content="{{ og.content }}" />
+		{% elif 'name' in og %}
+			<meta name="{{ og.name }}" content="{{ og.content }}" />
+		{% endif %}
+	{% endfor %}
+
+    <script src="https://yastatic.net/es5-shims/0.0.2/es5-shims.min.js"></script>
+    <script src="https://yastatic.net/share2/share.js"></script>
+    <script data-ad-client="ca-pub-0136145367401012" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    {% endcomment %}

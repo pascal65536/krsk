@@ -1,0 +1,33 @@
+<!-- Подвал -->
+<footer class="footer">
+  <div class="container">
+    <div class="row">
+      <!-- Рубрики -->
+      <div class="col-md-4">
+        <h5>Рубрики</h5>
+        <ul class="list-unstyled">
+          {% for category_slug, category_title in category_lst %}
+          <li>
+            <a href="{% url 'post_list' %}?category={{ category_slug }}">{{ category_title }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <!-- Название и слоган -->
+      <div class="col-md-4">
+        <h5>{{ title }}</h5>
+        <p>{{ description }}</p>
+      </div>
+      <!-- Год и возрастное ограничение -->
+      <div class="col-md-4">
+        <p>&copy; {% now "Y" %} &mdash; {{ title }}. </p>
+        <p>Возрастное ограничение: 12+</p>
+
+        {% if not context.user.is_staff %}
+        {% include "article/counters.html" %}  
+        {% endif %} 
+        
+      </div>
+    </div>
+  </div>
+</footer>

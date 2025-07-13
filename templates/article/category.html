@@ -1,0 +1,44 @@
+{% load thumbnail %}
+{% load static %}
+{% load get_tags %}
+
+
+<!-- Основной контент -->
+<div class="container">
+  <div class="row">
+    <!-- Левая колонка: Список новостей -->
+    <div class="col">
+
+      <h2>Последние новости в категории {{ category_name }}</h2>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+
+      {% for post in populate_qs %}
+      <div class="col news-item">
+        <a href="{% url 'post_detail' post.id %}">
+          {% if post.has_image %}
+            {% thumbnail post.image.picture "432x216" crop="center" as im %}
+            <img class="rounded1" src="{{ im.url }}" alt="{{ post.title }}"/>
+            {% endthumbnail %}
+          {% else %}
+            <img class="rounded" src="{% static 'img/432x216.png' %}" alt="{{ post.title }}"/>
+          {% endif %}
+        </a>
+        <h3><a href="{% url 'post_detail' post.id %}">
+          {% if request.user.is_staff and post.deleted %}<del>{% endif %}
+            {{ post.title | truncatechars:50 }}
+          {% if request.user.is_staff and post.deleted %}</del>{% endif %}  
+        </a></h3>
+        <p class="text-muted">{{ post.date_post }} | <a href="{% url 'post_list' %}?category={{ post.category.slug }}">{{ post.category_name }}</a></p>
+      </div>
+      {% endfor %}
+
+      </div>
+    
+      <div class="bg-danger">
+        {% include "article/advert_yandex_02.html" %}
+      </div>     
+      
+    </div>
+  </div>    
+</div>
+
