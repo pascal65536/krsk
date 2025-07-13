@@ -1,0 +1,54 @@
+body {
+  padding-top: 56px;
+  /* Отступ для фиксированной навигации */
+}
+
+.news-left {
+  margin-top: 20px;
+}
+
+.news-item {
+  margin-bottom: 20px;
+}
+
+.news-item img {
+  vertical-align: middle;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.news-item h3 {
+  margin-top: 10px;
+  font-size: 1.25rem;
+}
+
+.news-item p {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.news-item a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.news-item a:hover {
+  text-decoration: underline;
+}
+
+.footer {
+  background-color: #343a40;
+  color: white;
+  padding: 2rem 0;
+  margin-top: 40px;
+}
+
+.footer a {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
