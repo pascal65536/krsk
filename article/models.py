@@ -115,10 +115,9 @@ class Post(models.Model):
 
     objects = PostManager()
 
-
     @property
     def url_og_picture(self):
-        return settings.PROTO_DOMAIN + '/' + self.og_picture
+        return settings.PROTO_DOMAIN + "/" + self.og_picture
 
     def get_absolute_url(self):
         return reverse("post_detail", kwargs={"pk": self.pk})
@@ -144,9 +143,9 @@ class Post(models.Model):
             post.category_slug = post.category.slug
         return post_qs
 
-    def save(self, *args, **kwargs):       
-        if self.pk:
-            self.og_picture = opengraph(self)
+    def save(self, *args, **kwargs):
+        # if self.pk:
+        #     self.og_picture = opengraph(self)
         super(Post, self).save(*args, **kwargs)
 
     def __str__(self):

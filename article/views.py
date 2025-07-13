@@ -1,5 +1,4 @@
 import os
-import pymorphy3
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
@@ -15,14 +14,6 @@ from tag.models import Tag
 from django.contrib.sitemaps import Sitemap
 from django.contrib.syndication.views import Feed
 from krasnoarsk.utils import check_plagiarism
-
-
-morph = pymorphy3.MorphAnalyzer()
-
-
-def get_morphy_word(word):
-    p = morph.parse(word)[0]
-    return p.normal_form
 
 
 @login_required(login_url="/login/")
@@ -48,13 +39,12 @@ def tagging(request, pk):
         return redirect(post_detail, post.pk)
 
     for word in text_lst:
-        normal = get_morphy_word(word)
-        if not Tag.objects.filter(title=normal).count():
+        if not Tag.objects.filter(title=word).count():
             tag = Tag()
-            tag.title = normal
+            tag.title = word
             tag.save()
         else:
-            tag = Tag.objects.get(title=normal)
+            tag = Tag.objects.get(title=word)
         if tag not in post.tag.all():
             post.tag.add(tag)
     post.save()
@@ -84,9 +74,9 @@ def post_list(request):
     post_qs = post_qs[offset : offset + 16]
 
     category_dct = dict(Category.objects.values_list("id", "title"))
-    # for post in post_qs:
-    #     post.category_name = category_dct[post.category_id]
-    #     post.has_image = bool(post.image)
+    for post in post_qs:
+        post.category_name = category_dct[post.category_id]
+        # post.has_image = bool(post.image)
 
     page_lst = list()
     page_lst.append(0)
@@ -141,7 +131,7 @@ def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
 
     category_dct = dict(Category.objects.values_list("id", "title"))
-    post.has_image = bool(post.image)
+    # post.has_image = bool(post.image)
     post.category_name = category_dct[post.category_id]
     tag_lst = list()
     for tag in post.tag.all():

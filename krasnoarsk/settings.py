@@ -10,11 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -23,13 +23,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-_#syc6)m)c0tyn2w*rj23=b!43eu0!_6!d+ex0g_(&d=$o0!0s"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
-if DEBUG:
-    ALLOWED_HOSTS = ["*"]
-else:
-    ALLOWED_HOSTS = ["krasnoarsk.ru", "www.krasnoarsk.ru"]
-
 
 # Application definition
 
@@ -44,6 +37,8 @@ INSTALLED_APPS = [
     "photo",
     "tag",
     "django_summernote",
+    "sorl.thumbnail",
+
 ]
 
 MIDDLEWARE = [
@@ -56,7 +51,10 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+
 ROOT_URLCONF = "krasnoarsk.urls"
+WSGI_APPLICATION = "krasnoarsk.wsgi.application"
+
 
 TEMPLATES = [
     {
@@ -73,20 +71,6 @@ TEMPLATES = [
         },
     },
 ]
-
-WSGI_APPLICATION = "krasnoarsk.wsgi.application"
-
-
-# Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -106,29 +90,60 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "UTC"
-
+LANGUAGE_CODE = "ru-RU"
+TIME_ZONE = "Asia/Krasnoyarsk"
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = "static/"
-STATIC_ROOT = "static/"
+# Базовый URL для статических файлов
+STATIC_URL = "/static/"
+# Пути к папкам со статическими файлами
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+# Папка для сбора статических файлов при использовании `collectstatic`
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+X_FRAME_OPTIONS = "SAMEORIGIN"
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
+# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+
+TEMPLATE_LOADERS = ("django.template.loaders.app_directories.Loader",)
+# AUTH_USER_MODEL = 'people.User'
+
+JSON_CACHE = "_cache/"
+THUMBNAIL_PREFIX = "_cache/"
+
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    }
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": "/tmp",
+    }
+}
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+IMAGES_FOLDER = "media"
 
 try:
     from .settings_local import *

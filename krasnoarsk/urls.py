@@ -14,12 +14,21 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.contrib import admin
-from django.urls import path
-from django.conf.urls.static import static
 from django.conf import settings
-
-from article.views import post_list, post_detail
+from django.contrib import admin
+from django.urls import path, include
+from django.conf.urls.static import static
+from django.contrib.sitemaps.views import sitemap
+from django.views.decorators.csrf import csrf_exempt
+from article.views import (
+    post_detail,
+    post_list,
+    PostFeed,
+    check_content,
+    tagging,
+    get_file,
+    PostSitemap,
+)
 
 handler403 = "photo.views.tr_handler403"
 handler404 = "photo.views.tr_handler404"
@@ -29,7 +38,17 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", post_list, name="post_list"),
     path("detail/<int:pk>/", post_detail, name="post_detail"),
-
+    path("check/<int:pk>/", check_content, name="check_content"),
+    path("tagging/<int:pk>/", tagging, name="tagging"),
+    path("feed/", PostFeed()),
+    path("<filename>.txt", get_file, name="get_file"),
+    path("summernote/", include("django_summernote.urls")),
+    path(
+        "sitemap.xml",
+        sitemap,
+        {"sitemaps": {"posts": PostSitemap}},
+        name="django.contrib.sitemaps.views.sitemap",
+    ),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
