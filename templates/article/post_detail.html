@@ -56,7 +56,7 @@
                     </div>
                     {% endif %}
                     
-                    {% include "article/advert_yandex_03.html" %}  
+                    {% comment %} {% include "article/advert_yandex_03.html" %}   {% endcomment %}
 
                     <div class="mt-4">
                         {{ post.text|safe }}
@@ -109,17 +109,18 @@
                   </div>
                   {% endif %}
                   
-                  <div class="bg-danger">
+                  {% comment %} <div class="bg-danger">
                     {% include "article/advert_yandex_01.html" %}
-                  </div>    
+                  </div> {% endcomment %}
+                  
                 </div>
             </div>
 
-            {# get_category_qs #}
+            {% get_category_qs %}
 
           </div>
         
-        {# get_populate_qs #}
+        {% get_populate_qs %}
 
     </div>
 </div>

@@ -76,7 +76,7 @@ def post_list(request):
     category_dct = dict(Category.objects.values_list("id", "title"))
     for post in post_qs:
         post.category_name = category_dct[post.category_id]
-        # post.has_image = bool(post.image)
+        post.has_image = bool(post.image)
 
     page_lst = list()
     page_lst.append(0)
@@ -131,7 +131,7 @@ def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
 
     category_dct = dict(Category.objects.values_list("id", "title"))
-    # post.has_image = bool(post.image)
+    post.has_image = bool(post.image)
     post.category_name = category_dct[post.category_id]
     tag_lst = list()
     for tag in post.tag.all():

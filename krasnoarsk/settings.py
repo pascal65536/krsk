@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     "tag",
     "django_summernote",
     "sorl.thumbnail",
-
 ]
 
 MIDDLEWARE = [

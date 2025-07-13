@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% comment %} {% load thumbnail %} {% endcomment %}
+{% load thumbnail %}
 {% load static %}
 {% load get_tags %}
 
@@ -16,13 +16,13 @@
           {% for post in post_qs %}
           <div class="col news-item">
             <a href="{% url 'post_detail' post.id %}">
-              {% comment %} {% if post.has_image %}
+              {% if post.has_image %}
                 {% thumbnail post.image.picture "432x216" crop="center" as im %}
                 <img class="rounded1" src="{{ im.url }}" alt="{{ post.title }}"/>
                 {% endthumbnail %}
               {% else %}
                 <img class="rounded" src="{% static 'img/432x216.png' %}" alt="{{ post.title }}"/>
-              {% endif %} {% endcomment %}
+              {% endif %}
             </a>
             <h3><a href="{% url 'post_detail' post.id %}">
               {% if request.user.is_staff and post.deleted %}<del>{% endif %}
@@ -51,12 +51,13 @@
           </div>
         {% endif %}
 
-        <div class="bg-danger">
+        {% comment %} <div class="bg-danger">
           {% include "article/advert_yandex_02.html" %}
-        </div>        
+        </div>         {% endcomment %}
+        
       </div>
       
-      {# get_populate_qs #}
+      {% get_populate_qs %}
 
     </div>
   </div>
