@@ -25,7 +25,10 @@ SECRET_KEY = 'django-insecure-_#syc6)m)c0tyn2w*rj23=b!43eu0!_6!d+ex0g_(&d=$o0!0s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
+else:
+    ALLOWED_HOSTS = ['krasnoarsk.ru', 'www.krasnoarsk.ru']
 
 
 # Application definition
@@ -49,7 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'tidding.urls'
+ROOT_URLCONF = 'krasnoarsk.urls'
 
 TEMPLATES = [
     {
@@ -67,7 +70,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'tidding.wsgi.application'
+WSGI_APPLICATION = 'krasnoarsk.wsgi.application'
 
 
 # Database
