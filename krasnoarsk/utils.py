@@ -85,7 +85,7 @@ def cyr2lat(cyrillic):
 def opengraph(post_obj):
     """
     Создадим opengraph для Рубрики и Статьи
-    cd ~/git/krasnoarsk/ && pipenv shell && python3 manage.py runserver
+    cd ~/git/krsk/ && pipenv shell && python3 manage.py runserver
     """
     from article.models import Post
     from photo.models import Photo
