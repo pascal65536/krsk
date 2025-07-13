@@ -144,8 +144,8 @@ class Post(models.Model):
         return post_qs
 
     def save(self, *args, **kwargs):
-        # if self.pk:
-        #     self.og_picture = opengraph(self)
+        if self.pk:
+            self.og_picture = opengraph(self)
         super(Post, self).save(*args, **kwargs)
 
     def __str__(self):
