@@ -198,7 +198,13 @@ def opengraph(post_obj):
 
 def check_plagiarism(text):
     url = "https://content-watch.ru/public/api/"
-    data = {"action": "CHECK_TEXT", "key": settings.API_KEY, "test": 0, "text": text}
-    req = requests.post(url, data=data)
-    req.encoding = "utf-8"
-    return req.json()
+    post_data = {
+        "key": settings.API_KEY,
+        "text": text,
+        "test": 0,
+        "action": "CHECK_TEXT",
+    }
+    post_data["format"] = "json"
+    response = requests.post(url, data=post_data, timeout=30, verify=False)
+    response.raise_for_status()
+    return response.json()    
