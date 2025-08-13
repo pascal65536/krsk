@@ -5,11 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic import TemplateView
 from article.models import Post, Category
 from django.utils import timezone
-from django.db.models import Count
-from photo.models import Photo
 from tag.models import Tag
 from django.contrib.sitemaps import Sitemap
 from django.contrib.syndication.views import Feed
@@ -22,34 +19,10 @@ def tagging(request, pk):
     """
     Установка тегов
     """
-    russian = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-
     post = get_object_or_404(Post, pk=pk)
-
     if not request.method == "POST":
         return redirect(post_detail, post.pk)
-
-    post.tag.clear()
-    post_lst = list(filter(None, [post.text, post.lead, post.title, post.authors]))
-
-    text = " ".join(post_lst)
-    text = "".join([z if z in russian else " " for z in text.lower()])
-    text_lst = sorted(set([z for z in text.lower().split() if len(z) > 2]))
-    if len(text_lst) < 20:
-        return redirect(post_detail, post.pk)
-
-    for word in text_lst:
-        if not Tag.objects.filter(title=word).count():
-            tag = Tag()
-            tag.title = word
-            tag.save()
-        else:
-            tag = Tag.objects.get(title=word)
-        if tag not in post.tag.all():
-            post.tag.add(tag)
-    post.save()
-
-    params = dict(request.GET)
+    post.update_tags()
     return HttpResponseRedirect(reverse("post_detail", args=[post.pk]))
 
 
@@ -88,7 +61,6 @@ def post_list(request):
     page_lst = [p for p in set(page_lst) if 0 <= p <= count]
     page_lst.sort()
 
-    params = dict(request.GET)
     return render(
         request,
         "article/post_list.html",
@@ -153,8 +125,6 @@ def post_detail(request, pk):
 
 def get_file(request, filename):
     file_path = f"{filename}.txt"
-
-    params = dict(request.GET)
     if os.path.exists(f"templates/{file_path}"):
         return render(request, file_path, content_type="text/plain")
     else:

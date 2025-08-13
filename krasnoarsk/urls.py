@@ -19,7 +19,6 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
-from django.views.decorators.csrf import csrf_exempt
 from article.views import (
     post_detail,
     post_list,

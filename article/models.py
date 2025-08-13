@@ -134,6 +134,43 @@ class Post(models.Model):
         ]
         return mark_safe("".join(html))
 
+    def update_tags(self):
+        russian = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+        text = " ".join(filter(None, [self.text, self.lead, self.title, self.authors]))
+        text_new = str()
+        for t in text.lower():
+            if t in russian:
+                text_new += t
+            else:
+                text_new += ' '
+        text_dct = dict()
+        for word in text_new.split():
+            if not word:
+                continue
+            if len(word) <= 5:
+                continue
+            text_dct.setdefault(word[:5], 0)
+            text_dct[word[:5]] += 1
+
+        text_lst = list()
+        for k, v in text_dct.items():
+            text_lst.append((v, k))
+
+        text_lst.sort(reverse=True)
+        self.tag.clear()
+        for word in text_lst[:10]:
+            this = word[1]
+            if not Tag.objects.filter(title=this).count():
+                tag = Tag()
+                tag.title = this
+                tag.save()
+            else:
+                tag = Tag.objects.get(title=this)
+            if tag not in self.tag.all():
+                self.tag.add(tag)
+        self.save()
+
+
     @classmethod
     def update_qs(cls, post_qs):
         for post in post_qs:

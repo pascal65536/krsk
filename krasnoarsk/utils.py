@@ -1,8 +1,6 @@
 import os
-import datetime
 import string
 import textwrap
-
 import requests
 from PIL import Image, ImageDraw, ImageFont
 from django.conf import settings
@@ -111,6 +109,17 @@ def opengraph(post_obj):
         picture_name = post_obj.image.picture.name
         photo_obj_path = os.path.join(settings.MEDIA_ROOT, picture_name)
 
+    # Создадим путь и имя файла
+    short = f"{post_obj.pk:04d}"
+    directory = os.path.join(settings.MEDIA_ROOT, "opengraph", short[:2], short[2:4])
+    directory_item = os.path.join("media", "opengraph", short[:2], short[2:4])
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    ext = "jpeg"
+    filename = f"{short}.{ext}"
+    if os.path.exists(f"{directory_item}/{filename}"):
+        return f"{directory_item}/{filename}"
+
     font_size = 36
     pic_width = 1024
     pic_height = 512
@@ -184,14 +193,6 @@ def opengraph(post_obj):
     text_left = (pic_width - text_width) // 2
     draw.text((text_left, text_top), unicode_text, font=unicode_font, fill=font_color)
 
-    # Создадим путь и имя файла
-    short = f"{post_obj.pk:04d}"
-    directory = os.path.join(settings.MEDIA_ROOT, "opengraph", short[:2], short[2:4])
-    directory_item = os.path.join("media", "opengraph", short[:2], short[2:4])
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    ext = "png"
-    filename = f"{short}.{ext}"
     fill_image.save(f"{directory}/{filename}", format="PNG", dpi=[72, 72])
     return f"{directory_item}/{filename}"
 
@@ -203,8 +204,8 @@ def check_plagiarism(text):
         "text": text,
         "test": 0,
         "action": "CHECK_TEXT",
+        "format": "json"
     }
-    post_data["format"] = "json"
     response = requests.post(url, data=post_data, timeout=30, verify=False)
     response.raise_for_status()
     return response.json()    

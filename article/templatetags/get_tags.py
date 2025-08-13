@@ -161,21 +161,33 @@ def get_populate_qs(context):
 
 
 @register.inclusion_tag("article/category.html", takes_context=True)
-def get_category_qs(context):
+def get_similar_qs(context):
     """
     Посты близкие по тегам
     """
-    post_obj = context.get("post")
+    news = context.get("post")
     populate_qs = Post.objects.for_user()
-    populate_qs = populate_qs.filter(category=post_obj.category)
-    if post_obj:
-        populate_qs = populate_qs.exclude(id=post_obj.id)
-    populate_qs = populate_qs[:12]
+
+    tag_dct = dict()
+    for tag in news.tag.all():
+        for pk in populate_qs.filter(tag=tag).values_list('id', flat=True):
+            tag_dct.setdefault(pk, 0)
+            tag_dct[pk] += 1
+    tag_lst = list()
+    for k, v in tag_dct.items():
+        tag_lst.append((v, k))
+
+    res = sorted(tag_lst, reverse=True)
+
+    pk_lst = [z[1] for z in res[:25] if z[1] != news.id]
+    pk_lst = pk_lst[:24]
+
+    populate_qs = Post.objects.filter(pk__in=pk_lst)
     category_dct = dict(Category.objects.values_list("id", "title"))
     for post in populate_qs:
         post.category_name = category_dct[post.category_id]
         post.has_image = bool(post.image)
+
     return {
         "populate_qs": populate_qs,
-        "category_name": category_dct[post_obj.category_id],
     }
