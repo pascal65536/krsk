@@ -249,3 +249,27 @@ def save_json(folder_name_lst, file_name, save_dct):
     filename = os.path.join(folder_name, file_name)
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(save_dct, f, ensure_ascii=False, indent=4)
+
+
+def get_page_items(data_lst, current_page, per_page=24, length=2):
+    '''
+    data_lst - Отрезает часть списка для создания страницы
+    current_page - номер страницы
+    per_page - Количество данных на странице
+    length - Сколько нужно сделать кнопок
+    '''
+    num_lst = list()
+    maxx = 0
+    minn = len(data_lst)
+    for i in range(0, len(data_lst), per_page):
+        curr = 1 + (i // per_page)
+        if maxx < curr:
+            maxx = curr
+        if minn > curr:
+            minn = curr
+        if curr - length <= current_page <= curr + length:
+            num_lst.append(curr)
+    num_lst.append(maxx)
+    num_lst.insert(0, minn)
+    data_page = data_lst[per_page * (current_page - 1): per_page * current_page]
+    return data_page, sorted(set(num_lst))

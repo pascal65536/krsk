@@ -1,13 +1,10 @@
 from django.db.models import Q
 from django.utils import timezone
+from krasnoarsk.utils import get_page_items
 from worlds.models import Parallel, Place
-from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
+from django.shortcuts import render, get_object_or_404, redirect
 import uuid
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import render, get_object_or_404
-
-
 
 
 def worlds_detail(request, pk):
@@ -15,7 +12,6 @@ def worlds_detail(request, pk):
 
     if photo.group:
         group_photos = list(Parallel.objects.filter(group=photo.group, deleted__isnull=True).order_by('-changed'))
-        # Формируем очередь: выбранное фото - первое, потом остальные
         group_photos_sorted = [photo] + [p for p in group_photos if p.pk != photo.pk]
     else:
         group_photos_sorted = [photo]
@@ -35,40 +31,11 @@ def worlds_detail(request, pk):
     })
 
 
-
-
-
-# def worlds_detail1(request, pk):
-#     # Получаем объект или 404
-#     photo = get_object_or_404(Parallel, pk=pk, deleted__isnull=True)
-#
-#     if photo.group:
-#         group_photos = Parallel.objects.filter(group=photo.group, deleted__isnull=True).order_by('-changed')
-#     else:
-#         group_photos = Parallel.objects.filter(pk=photo.pk)
-#
-#     count = group_photos.count()
-#     place_title = 'Не указано'
-#     if photo.place:
-#         place_title = photo.place.title
-#
-#     for p in group_photos:
-#         if p.tags:
-#             p.tags_lst = [t.strip().lower() for t in p.tags.split(',')]
-#
-#     return render(request, 'worlds/worlds_detail.html', {
-#         'group_photos': group_photos,
-#         'photo': photo,
-#         'group_count': count,
-#         'place_title': place_title,
-#     })
-
-
 def worlds_list(request):
     place = request.GET.get("place")
     search = request.GET.get("search")
     tag = request.GET.get("tag")
-    page_number = request.GET.get("page", 1)  # Получаем номер страницы из GET, по умолчанию 1
+    page_number = int(request.GET.get("page", 1))
 
     parallel_dct = dict()
     for parallel in Parallel.objects.filter(deleted__isnull=True):
@@ -107,14 +74,7 @@ def worlds_list(request):
 
     worlds_qs = Parallel.objects.filter(pk__in=parallel_lst).order_by('-changed')
 
-    # Создаём пагинатор и получаем страницу с нужным номером
-    paginator = Paginator(worlds_qs, 24)  # 24 записи на страницу
-    try:
-        worlds_page = paginator.page(page_number)
-    except PageNotAnInteger:
-        worlds_page = paginator.page(1)
-    except EmptyPage:
-        worlds_page = paginator.page(paginator.num_pages)
+    worlds_page, num_lst = get_page_items(worlds_qs, page_number, per_page=8, length=2)
 
     place_dct = dict(Place.objects.all().values_list('id', 'title'))
 
@@ -127,16 +87,15 @@ def worlds_list(request):
         if worlds.tags:
             worlds.tags_lst = [z.strip().lower() for z in worlds.tags.split(',')]
 
-    page_lst = paginator.page_range  # Диапазон страниц для пагинации (1, 2, 3 ...)
-
     return render(
         request,
         "worlds/worlds_list.html",
         {
             "worlds_qs": worlds_page,
-            "page_lst": page_lst,
+            "page_lst": num_lst,
             "message": message,
             "place": place,
+            "current_page": page_number,
             "request": request,
         },
     )
