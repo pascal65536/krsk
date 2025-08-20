@@ -28,6 +28,8 @@ from article.views import (
     get_file,
     PostSitemap,
 )
+from worlds.views import worlds_list, worlds_group, worlds_detail
+
 
 handler403 = "photo.views.tr_handler403"
 handler404 = "photo.views.tr_handler404"
@@ -37,9 +39,12 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", post_list, name="post_list"),
     path("detail/<int:pk>/", post_detail, name="post_detail"),
+    path("worlds/", worlds_list, name="worlds_list"),
     path("check/<int:pk>/", check_content, name="check_content"),
     path("tagging/<int:pk>/", tagging, name="tagging"),
     path("feed/", PostFeed()),
+    path("worlds_group/", worlds_group, name="worlds_group"),
+    path('worlds/<int:pk>/', worlds_detail, name='worlds_detail'),
     path("<filename>.txt", get_file, name="get_file"),
     path("summernote/", include("django_summernote.urls")),
     path(

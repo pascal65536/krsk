@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load thumbnail %}
+{% block content %}
+<div class="container mt-5">
+  <h1 class="world">
+      <a href="{% url 'worlds_list' %}">{{ photo.title }}</a> /
+      <a href="{% url 'worlds_list' %}?place={{ place_title }}">{{ place_title }}</a> /
+      {{ group_count }}
+  </h1>
+
+  <div class="row">
+    <!-- Левая колонка с каруселью -->
+    <div class="col-md-8 mb-4">
+      <div id="photoCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          {% for p in group_photos %}
+          <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            {% thumbnail p.picture "800x600" crop="center" as im %}
+              <img src="{{ im.url }}" class="d-block w-100 rounded" alt="{{ p.title }}">
+            {% endthumbnail %}
+            <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-2">
+              <h5>{{ p.title }}</h5>
+              {% if p.date_world %}<p>Дата съёмки: {{ p.date_world }}</p>{% endif %}
+              {% if p.descriptions %}<p>{{ p.descriptions }}</p>{% endif %}
+              {% if False and p.tags_lst %}
+                <p>Теги:
+                  {% for tag in p.tags_lst %}
+                    <a href="{% url 'worlds_list' %}?tag={{ tag }}">{{ tag }}</a>{% if not forloop.last %}, {% endif %}
+                  {% endfor %}
+                </p>
+              {% endif %}
+                <p>Место съёмки:
+                    <a href="{% url 'worlds_list' %}?place={{place_title }}">
+                        {{ place_title }}
+                    </a>
+                </p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#photoCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Назад</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Вперед</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Правая колонка с миниатюрами и инфо -->
+    <div class="col-md-4">
+      <div class="list-group">
+        {% for p in group_photos %}
+        <a href="{% url 'worlds_detail' p.pk %}" class="list-group-item list-group-item-action d-flex align-items-center">
+          {% thumbnail p.picture "150x150" crop="center" as im %}
+            <img src="{{ im.url }}" alt="{{ p.title }}" class="img-thumbnail rounded me-3" style="width: 75px; height: 75px; object-fit: cover;">
+          {% endthumbnail %}
+          <div>
+            <h6 class="mb-1">{{ p.title }}</h6>
+            {% if p.date_world %}
+            <p class="small text-muted">Дата съёмки: {{ p.date_world }}</p>
+            {% endif %}
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+
+      <div class="mt-4">
+        <a href="{% url 'worlds_list' %}" class="btn btn-secondary w-100 mb-2">Вернуться к списку</a>
+
+        {% if request.user.is_staff %}
+        <a href="{% url 'admin:worlds_parallel_change' photo.pk %}" class="btn btn-primary w-100">Редактировать фото</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
