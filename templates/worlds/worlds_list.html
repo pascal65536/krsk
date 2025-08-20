@@ -57,8 +57,10 @@
               </p>
           {% endif %}
 
-          {% if worlds.group %}
-            <p class="text-muted">Группа: {{ worlds.group }}</p>
+          {% if request.user.is_staff %}
+              {% if worlds.group %}
+                <p class="text-muted">Группа: {{ worlds.group }}</p>
+              {% endif %}
           {% endif %}
 
           {% if False %}
@@ -68,12 +70,17 @@
             <p class="text-muted">{{ worlds.group }}</p>
             <p class="text-muted">{{ worlds.og_picture }}</p>
           {% endif %}
-            <input type="checkbox" name="group_items" value="{{ worlds.pk }}">
+
+          {% if request.user.is_staff %}
+          <input type="checkbox" name="group_items" value="{{ worlds.pk }}">
+          {% endif %}
+
           </div>
           {% endfor %}
         </div>
-
-      <input type="submit" name="Group">
+        {% if request.user.is_staff %}
+        <input type="submit" name="Group">
+        {% endif %}
       </form>
 
         {% if page_lst|length > 2 %}
