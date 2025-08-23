@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from krasnoarsk.utils import cyr2lat, opengraph
+from krasnoarsk.utils import cyr2lat, opengraph, clear_text
 from article.managers import PostManager
 from photo.models import Photo
 from tag.models import Tag
@@ -135,14 +135,8 @@ class Post(models.Model):
         return mark_safe("".join(html))
 
     def update_tags(self):
-        russian = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
         text = " ".join(filter(None, [self.text, self.lead, self.title, self.authors]))
-        text_new = str()
-        for t in text.lower():
-            if t in russian:
-                text_new += t
-            else:
-                text_new += ' '
+        text_new = clear_text(text)
         text_dct = dict()
         for word in text_new.split():
             if not word:
@@ -169,7 +163,6 @@ class Post(models.Model):
             if tag not in self.tag.all():
                 self.tag.add(tag)
         self.save()
-
 
     @classmethod
     def update_qs(cls, post_qs):

@@ -273,3 +273,18 @@ def get_page_items(data_lst, current_page, per_page=24, length=2):
     num_lst.insert(0, minn)
     data_page = data_lst[per_page * (current_page - 1): per_page * current_page]
     return data_page, sorted(set(num_lst))
+
+
+def clear_text(text, is_russian=True):
+    if is_russian:
+        alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+    else:
+        alphabet = "abcdefghijklmnopqrstuvwxyzабвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+
+    text_new = str()
+    for t in text.lower():
+        if t in alphabet:
+            text_new += t
+        else:
+            text_new += ' '
+    return text_new

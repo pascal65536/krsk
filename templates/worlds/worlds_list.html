@@ -8,102 +8,134 @@
   <!-- Основной контент -->
   <div class="container mt-5">
     <div class="row">
-      <div class="col-xl-12 col-12">
+        <div class="col-xl-12 col-12">
+            <div class="d-flex justify-content-between">
+            <h1 class="world"><a href="{% url 'worlds_list' %}">{{ message }}</a></h1>
 
-      <div class="d-flex justify-content-between">
-        <h1 class="world"><a href="{% url 'worlds_list' %}">{{ message }}</a></h1>
+            {% if page_lst|length > 1 %}
+            <nav aria-label="pagination">
+                <ul class="pagination">
+                {% for page_num in page_lst %}
+                    <li class="page-item {% if current_page == page_num %}active{% endif %}">
+                    <a type="button" class="page-link"
+                       href="?page={{ page_num }}&tag={{ request.GET.tag }}&search={{ request.GET.search }}&place={{ request.GET.place }}">{{ page_num }}</a>
+                    </li>
+                {% endfor %}
+                </ul>
+            </nav>
+            {% endif %}
 
-      {% if page_lst|length > 1 %}
-        <nav aria-label="pagination">
-            <ul class="pagination">
-            {% for page_num in page_lst %}
-                <li class="page-item {% if current_page == page_num %}active{% endif %}">
-                <a type="button" class="page-link"
-                   href="?page={{ page_num }}&tag={{ request.GET.tag }}&search={{ request.GET.search }}&place={{ request.GET.place }}">{{ page_num }}</a>
-                </li>
-            {% endfor %}
-            </ul>
-        </nav>
-      {% endif %}
+            </div>
+              <form action="{% url 'worlds_group' %}" method="POST">
+              {% csrf_token %}
 
-      </div>
-
-      <form action="{% url 'worlds_group' %}" method="POST">
-      {% csrf_token %}
-
-        <div class="row row-cols-1 row-cols-md-4 g-4">
-          {% for worlds in worlds_qs %}
-          <div class="col news-item">
-            <a href="{% url 'worlds_detail' worlds.id %}">
-                {% thumbnail worlds.picture "400x400" crop="center" as im %}
-                <img class="rounded1" src="{{ im.url }}" alt="{{ worlds.title }}"/>
-                {% endthumbnail %}
-            </a>
-            <h3>
-                <a href="{% url 'worlds_list' %}?search={{ worlds.title }}">
-                    {{ worlds.title }} // {{ worlds.group_count }}
-                </a>
-
-                {% if request.user.is_staff %}
-                    <a title="edit" href="{% url 'admin:worlds_parallel_change' worlds.id %}">
-                        <i class="bi bi-pencil small"></i>
+                <div class="row row-cols-1 row-cols-md-4 g-4">
+                  {% for worlds in worlds_qs %}
+                  <div class="col news-item">
+                    <a href="{% url 'worlds_detail' worlds.id %}">
+                        {% thumbnail worlds.picture "400x400" crop="center" as im %}
+                        <img class="rounded1" src="{{ im.url }}" alt="{{ worlds.title }}"/>
+                        {% endthumbnail %}
                     </a>
+                    <h3>
+                        <a href="{% url 'worlds_list' %}?title={{ worlds.title }}">
+                            {{ worlds.title }} // {{ worlds.group_count }}
+                        </a>
+
+                        {% if request.user.is_staff %}
+                            <a title="edit" href="{% url 'admin:worlds_parallel_change' worlds.id %}">
+                                <i class="bi bi-pencil small"></i>
+                            </a>
+                        {% endif %}
+                    </h3>
+                    <p>Место съёмки:
+                        <a href="{% url 'worlds_list' %}?place={{ worlds.place_title }}">
+                            {{ worlds.place_title }}
+                        </a>
+                    </p>
+
+                  {% if worlds.date_world %}
+                    <p class="text-muted">Дата съёмки: {{ worlds.date_world }}</p>
+                  {% endif %}
+
+                  {% if worlds.descriptions %}
+                    <p class="text-muted">Описание: {{ worlds.descriptions }}</p>
+                  {% endif %}
+
+                  {% if worlds.tags_lst %}
+                      <p class="text-muted">Теги:
+                      {% for tag in worlds.tags_lst %}
+                        <a href="{% url 'worlds_list' %}?tag={{ tag }}">
+                            {{ tag }}</a>{% if not forloop.last %},{% endif %}
+                      {% endfor %}
+                      </p>
+                  {% endif %}
+
+                  {% if request.user.is_staff %}
+                      {% if worlds.group %}
+                        <p class="text-muted">Группа: {{ worlds.group }}</p>
+                      {% endif %}
+                  {% endif %}
+
+                  {% if False %}
+                    <p class="text-muted">{{ worlds.image_size }}</p>
+                    <p class="text-muted">{{ worlds.content_type }}</p>
+                    <p class="text-muted">{{ worlds.authors }}</p>
+                    <p class="text-muted">{{ worlds.group }}</p>
+                    <p class="text-muted">{{ worlds.og_picture }}</p>
+                  {% endif %}
+
+                  {% if request.user.is_staff %}
+                  <input type="checkbox" name="group_items" value="{{ worlds.pk }}">
+                  {% endif %}
+
+                  </div>
+                  {% endfor %}
+                </div>
+                {% if request.user.is_staff %}
+                <input type="submit" name="Group">
                 {% endif %}
-            </h3>
-            <p>Место съёмки:
-                <a href="{% url 'worlds_list' %}?place={{ worlds.place_title }}">
-                    {{ worlds.place_title }}
+              </form>
+            </div>
+
+            <div class="">
+                {% for place in place_dct.values %}
+                <a type="button"
+                        href="{% url 'worlds_list' %}?place={{ place }}"
+                        class="btn btn-secondary position-relative small m-2">
+                  {{ place }}
                 </a>
-            </p>
+                {% endfor %}
+            </div>
 
-          {% if worlds.date_world %}
-            <p class="text-muted">Дата съёмки: {{ worlds.date_world }}</p>
-          {% endif %}
+            <div class="accordion accordion-flush" id="accordionFlushExample">
+                {% for letter, worlds in title_dct.items %}
+                  <div class="accordion-item">
+                    <h2 class="accordion-header">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{ letter }}" aria-expanded="false" aria-controls="flush-collapse{{ letter }}">
+                        Миры на букву #{{ letter }}
+                      </button>
+                    </h2>
+                    <div id="flush-collapse{{ letter }}" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                      <div class="accordion-body">
+                          {% for world in worlds %}
+                            <a type="button"
+                                    href="{% url 'worlds_list' %}?title={{ world.title|default:'Пусто' }}"
+                                    class="btn btn-primary position-relative small m-2">
+                              {{ world.title|default:"Пусто" }}
+                              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ world.count }}
+                                <span class="visually-hidden">worlds</span>
+                              </span>
+                            </a>
+                          {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+            </div>
 
-          {% if worlds.descriptions %}
-            <p class="text-muted">Описание: {{ worlds.descriptions }}</p>
-          {% endif %}
-
-          {% if worlds.tags_lst %}
-              <p class="text-muted">Теги:
-              {% for tag in worlds.tags_lst %}
-                <a href="{% url 'worlds_list' %}?tag={{ tag }}">
-                    {{ tag }}</a>{% if not forloop.last %},{% endif %}
-              {% endfor %}
-              </p>
-          {% endif %}
-
-          {% if request.user.is_staff %}
-              {% if worlds.group %}
-                <p class="text-muted">Группа: {{ worlds.group }}</p>
-              {% endif %}
-          {% endif %}
-
-          {% if False %}
-            <p class="text-muted">{{ worlds.image_size }}</p>
-            <p class="text-muted">{{ worlds.content_type }}</p>
-            <p class="text-muted">{{ worlds.authors }}</p>
-            <p class="text-muted">{{ worlds.group }}</p>
-            <p class="text-muted">{{ worlds.og_picture }}</p>
-          {% endif %}
-
-          {% if request.user.is_staff %}
-          <input type="checkbox" name="group_items" value="{{ worlds.pk }}">
-          {% endif %}
-
-          </div>
-          {% endfor %}
         </div>
-        {% if request.user.is_staff %}
-        <input type="submit" name="Group">
-        {% endif %}
-      </form>
-
-
-
-      </div>
-
-    </div>
   </div>
 
   {% endblock %}

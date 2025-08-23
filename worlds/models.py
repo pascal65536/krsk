@@ -5,6 +5,7 @@ from django.conf import settings
 from django.utils.safestring import mark_safe
 from PIL import Image, ExifTags
 from datetime import datetime
+from sorl.thumbnail import get_thumbnail
 
 
 def get_file_path(instance, filename):
@@ -122,15 +123,16 @@ class Parallel(models.Model):
 
     def image_img(self):
         """
-        Вывод картинок в админке
+        Вывод миниатюры картинки в админке.
         """
         if not self.picture:
             return "(Нет изображения)"
-        html = [
-            f'<a href="{self.picture.url}" target="_blank">',
-            f'<img src="{self.picture.url}" width="200"/></a>',
-        ]
-        return mark_safe(''.join(html))
+        try:
+            im = get_thumbnail(self.picture, '200x200', crop='center', quality=85)
+            html = f'<a href="{self.picture.url}" target="_blank"><img src="{im.url}" width="200"/></a>'
+            return mark_safe(html)
+        except Exception as e:
+            return f"(Ошибка при формировании миниатюры: {e})"
 
     def __str__(self):
         return self.title
