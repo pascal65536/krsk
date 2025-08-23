@@ -2,8 +2,12 @@ from article.models import Category, Post
 from django.utils import timezone
 from django.conf import settings
 from django import template
-from django.db.models import Count, Q, QuerySet
+from django.db.models import QuerySet
 from datetime import timedelta
+from sorl.thumbnail import get_thumbnail
+
+from krasnoarsk.utils import create_opengraph_image_for_obj
+from worlds.models import Parallel
 
 
 register = template.Library()
@@ -32,6 +36,29 @@ def get_meta(context):
     description_lst = list()
     for cd in context.dicts:
         for k, v in cd.items():
+
+            if k == "photo" and isinstance(v, Parallel):
+                published = published or v.created.strftime("%Y-%m-%d %H:%M:%S")
+                if v.meta_title:
+                    title_lst.append(v.meta_title)
+                else:
+                    title_lst.append(v.title)
+                if v.meta_description:
+                    description_lst.append(v.meta_description)
+                else:
+                    description_lst.append(v.descriptions or "")
+                if v.meta_keywords:
+                    keywords_lst = v.meta_keywords.split(",")
+                else:
+                    if v.tags:
+                        keywords_lst += [tag.strip() for tag in v.tags.split(",")]
+                # im = get_thumbnail(v.picture, '1024x512', crop='center', quality=85)
+                # image = f"{domain.rstrip('/')}{im.url}"
+
+                image = domain.rstrip('/') + create_opengraph_image_for_obj(v)
+
+                print(image)
+
             if k == "page_dct" and isinstance(v, dict):
                 title_lst.append(f"Страница {v.get('num_page')} из {v.get('all_page')}")
             if k == "message" and isinstance(v, str):

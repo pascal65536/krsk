@@ -48,43 +48,6 @@ class Parallel(models.Model):
     meta_keywords = models.CharField(max_length=255, verbose_name="Keywords", null=True, blank=True)
     meta_description = models.TextField(max_length=255, verbose_name="Description", null=True, blank=True)
 
-    def save1(self, *args, **kwargs):
-        if self.picture:
-            self.image_size = self.picture.size
-            if hasattr(self.picture, 'file') and hasattr(self.picture.file, 'content_type'):
-                self.content_type = self.picture.file.content_type
-        super().save(*args, **kwargs)
-
-    def save2(self, *args, **kwargs):
-        if not self.picture:
-            return
-
-        self.image_size = self.picture.size
-
-        if not self.md5_hash:
-            hash_md5 = hashlib.sha1()
-            for chunk in self.picture.chunks():
-                hash_md5.update(chunk)
-            self.md5_hash = hash_md5.hexdigest()
-
-        if hasattr(self.picture, 'file') and hasattr(self.picture.file, 'content_type'):
-            self.content_type = self.picture.file.content_type
-
-        super().save(*args, **kwargs)
-
-        img = Image.open(self.picture)
-        exif_data = img._getexif()
-        if exif_data:
-            exif = {
-                ExifTags.TAGS.get(tag, tag): value
-                for tag, value in exif_data.items()
-            }
-            print("EXIF метаданные изображения:")
-            for k, v in exif.items():
-                print(f"{k}: {v}")
-        else:
-            print("EXIF метаданные не найдены.")
-
     def save(self, *args, **kwargs):
         if not self.picture:
             return

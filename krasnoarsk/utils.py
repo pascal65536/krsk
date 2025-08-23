@@ -4,8 +4,8 @@ import string
 import textwrap
 import requests
 from PIL import Image, ImageDraw, ImageFont
-from django.conf import settings
 from django.db.models.fields.files import ImageFieldFile
+from django.conf import settings
 
 
 def cyr2lat(cyrillic):
@@ -196,6 +196,101 @@ def opengraph(post_obj):
 
     fill_image.save(f"{directory}/{filename}", format="PNG", dpi=[72, 72])
     return f"{directory_item}/{filename}"
+
+
+def create_opengraph_image_for_obj(obj):
+    """
+    Генерирует изображение OpenGraph (1024x512) для объекта с атрибутом `title` и полем картинки.
+    Возвращает относительный URL к сгенерированному файлу.
+    """
+    # Определяем путь и имя файла
+    short = f"{obj.pk:04d}"
+    directory = os.path.join(settings.MEDIA_ROOT, "opengraph", short[:2], short[2:4])
+    directory_item = os.path.join("media", "opengraph", short[:2], short[2:4])
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    ext = "png"
+    filename = f"{short}.{ext}"
+    full_path = os.path.join(directory, filename)
+    relative_path = f"/{directory_item}/{filename}"
+
+    # Если файл уже существует, возвращаем путь
+    if os.path.exists(full_path):
+        return relative_path
+
+    # Параметры изображения
+    pic_width = 1024
+    pic_height = 512
+
+    # Создаём белый фон
+    fill_image = Image.new("RGBA", (pic_width, pic_height), (255, 255, 255, 255))
+
+    # База для вставки фонового изображения, если есть
+    photo_obj_path = None
+    photo_obj_field = None
+
+    # Определяем поле картинки в объекте, можно расширять по типам
+    if hasattr(obj, 'picture') and obj.picture:
+        photo_obj_field = obj.picture
+    elif hasattr(obj, 'image') and obj.image:
+        photo_obj_field = obj.image
+
+    if photo_obj_field:
+        photo_obj_path = os.path.join(settings.MEDIA_ROOT, photo_obj_field.name)
+
+    if photo_obj_path and os.path.exists(photo_obj_path):
+        input_im = Image.open(photo_obj_path).convert("RGBA")
+
+        # Подгоняем размер изображения в нужный формат с сохранением пропорций
+        w, h = input_im.size
+        scale = max(pic_width / w, pic_height / h)
+        new_w, new_h = int(w * scale), int(h * scale)
+        input_im = input_im.resize((new_w, new_h), Image.LANCZOS)
+
+        # Кропаем по центру
+        left = (new_w - pic_width) // 2
+        top = (new_h - pic_height) // 2
+        input_im = input_im.crop((left, top, left + pic_width, top + pic_height))
+
+        # Добавляем градиентный слой для текста (черный прозрачный фон по горизонтали)
+        alpha_gradient = Image.new("L", (pic_width, 1), color=0)
+        for x in range(pic_width):
+            a = int(255 * (1 - 0.7 * x / pic_width))
+            alpha_gradient.putpixel((x, 0), max(a, 0))
+        alpha = alpha_gradient.resize(input_im.size)
+        black_im = Image.new("RGBA", (pic_width, pic_height), color=(0, 0, 0, 180))
+        black_im.putalpha(alpha)
+
+        fill_image = Image.alpha_composite(input_im, black_im)
+
+    # Выбираем цвет текста в зависимости от яркости фона
+    stat = fill_image.convert("L").getextrema()
+    font_color = (255, 255, 255) if stat[0] < 128 else (0, 0, 0)
+
+    # Отрисовываем текст заголовка
+    draw = ImageDraw.Draw(fill_image)
+    font_path = os.path.join(settings.STATIC_ROOT, "fonts", "Oswald-Medium.ttf")
+    font_size = 36
+    font = ImageFont.truetype(font_path, font_size)
+
+    text = getattr(obj, 'title', '')
+    wrapped_text = "\n".join(textwrap.wrap(text, width=30))
+
+    # import ipdb; ipdb.sset_trace()
+
+    bbox = draw.multiline_textbbox((0, 0), wrapped_text, font=font)
+    text_width = bbox[2]
+    text_height = bbox[3]
+    text_x = (pic_width - text_width) // 2
+    text_y = (pic_height - text_height) // 2
+
+    draw.multiline_text((text_x, text_y), wrapped_text, font=font, fill=font_color, align='center')
+
+    # Сохраняем результат
+    fill_image.convert("RGB").save(full_path, format="PNG", dpi=(72, 72))
+
+    return relative_path
+
 
 
 def check_plagiarism(text):
