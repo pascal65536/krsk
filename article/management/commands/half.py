@@ -30,7 +30,7 @@ class Command(BaseCommand):
         ).order_by('date_post')
         
         for num, post_obj in enumerate(post_qs):
-            publish_time = tomorrow_midnight + timedelta(hours=12 * num)
+            publish_time = tomorrow_midnight + timedelta(hours=12 * (num + 1))
             
             # print(f"Статья: {post_obj.title}")
             # print(f"Было: {post_obj.date_post}")
