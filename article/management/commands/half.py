@@ -25,7 +25,7 @@ class Command(BaseCommand):
         
         # Фильтр по будущим статьям
         post_qs = Post.objects.filter(
-            date_post__gt=tomorrow_midnight,
+            date_post__gte=tomorrow_midnight,
             deleted__isnull=True
         ).order_by('date_post')
         
