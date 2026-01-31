@@ -32,11 +32,11 @@ class Command(BaseCommand):
         for num, post_obj in enumerate(post_qs):
             publish_time = tomorrow_midnight + timedelta(hours=12 * num)
             
-            print(f"Статья: {post_obj.title}")
-            print(f"Было: {post_obj.date_post}")
-            print(f"Станет: {publish_time}")
-            print("-" * 50)
+            # print(f"Статья: {post_obj.title}")
+            # print(f"Было: {post_obj.date_post}")
+            # print(f"Станет: {publish_time}")
+            # print("-" * 50)
             
             # Раскомментируйте для сохранения:
-            # post_obj.date_post = publish_time
-            # post_obj.save()
+            post_obj.date_post = publish_time
+            post_obj.save()
