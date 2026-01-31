@@ -15,7 +15,7 @@ class Command(BaseCommand):
         for post_obj in post_qs:
             pod = post_obj.date_post
             pd = list()
-            pd.append(2027)
+            pd.append(datetime.datetime.now().year + 1)
             pd.append(pod.month)
             pd.append(pod.day)
             pd.append(pod.hour)
