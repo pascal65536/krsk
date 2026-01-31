@@ -13,7 +13,7 @@ class Command(BaseCommand):
         
         # Полночь следующего дня (naive)
         now_naive = datetime.now()
-        tomorrow_naive = (now_naive + timedelta(days=1)).replace(
+        tomorrow_naive = (now_naive + timedelta(days=2)).replace(
             hour=0, minute=0, second=0, microsecond=0
         )
         
