@@ -299,7 +299,7 @@ def check_plagiarism(text):
         "action": "CHECK_TEXT",
         "format": "json"
     }
-    response = requests.post(url, data=post_data, timeout=30, verify=False)
+    response = requests.post(url, data=post_data, timeout=30)
     response.raise_for_status()
     return response.json()    
 
