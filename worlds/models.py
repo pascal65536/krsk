@@ -6,6 +6,8 @@ from django.utils.safestring import mark_safe
 from PIL import Image, ExifTags
 from datetime import datetime
 from sorl.thumbnail import get_thumbnail
+from django.urls import reverse
+
 
 def get_file_path(instance, filename):
     ext = filename.split(".")[-1]
@@ -46,7 +48,10 @@ class Parallel(models.Model):
     meta_title = models.CharField(max_length=255, verbose_name="Title", null=True, blank=True)
     meta_keywords = models.CharField(max_length=255, verbose_name="Keywords", null=True, blank=True)
     meta_description = models.TextField(max_length=255, verbose_name="Description", null=True, blank=True)
-
+    
+    def get_absolute_url(self):
+        return reverse("worlds_detail", kwargs={"pk": self.pk})
+    
     def save(self, *args, **kwargs):
         if not self.picture:
             return

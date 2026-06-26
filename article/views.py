@@ -1,14 +1,13 @@
 import os
 from django.conf import settings
+from django.utils import timezone
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from article.models import Post, Category
-from django.utils import timezone
 from tag.models import Tag
-from django.contrib.sitemaps import Sitemap
 from django.contrib.syndication.views import Feed
 from krasnoarsk.utils import check_plagiarism
 
@@ -131,59 +130,48 @@ def get_file(request, filename):
         raise Http404("non file")
 
 
-class PostSitemap(Sitemap):
-    changefreq = "weekly"
-    priority = 0.9
-
-    def items(self):
-        post_qs = Post.objects.filter(deleted__isnull=True)
-        post_qs = post_qs.filter(date_post__lte=timezone.now())
-        return post_qs
-
-    def location(self, obj):
-        return reverse("post_detail", args=[obj.pk])
-
-    def lastmod(self, obj):
-        return obj.changed
-
-
 class PostFeed(Feed):
     title = settings.TITLE
-    link = "/"
-    # description = "Последние опубликованные посты"
+    link = settings.PROTO_DOMAIN 
+    description = settings.DESCRIPTION 
 
     def items(self):
-        post_qs = Post.objects.filter(
-            deleted__isnull=True, date_post__lte=timezone.now()
-        )
-        return post_qs.order_by("-date_post")[:50]
+        return Post.objects.filter(
+            deleted__isnull=True, 
+            date_post__lte=timezone.now()
+        ).order_by("-date_post")[:50]
 
     def item_title(self, obj):
         return obj.title
 
     def item_description(self, obj):
-        return obj.lead
+        return obj.lead or (obj.text[:500] if obj.text else "")
 
     def item_link(self, obj):
-        return reverse("post_detail", args=[obj.pk])
+        return obj.get_absolute_url()
 
     def item_pubdate(self, obj):
         return obj.date_post
 
     def item_updateddate(self, obj):
-        return timezone.now()
+        return obj.changed
 
     def item_enclosure_url(self, obj):
         if obj.og_picture:
             return obj.url_og_picture
         return None
 
-    # def item_enclosure_length(self, obj):
-    #     if obj.og_picture:
-    #         return obj.og_picture.size
-    #     return None
+    def item_enclosure_length(self, obj):
+        """Возвращает размер файла картинки в байтах (обязательно для RSS)"""
+        if obj.og_picture:
+            file_path = os.path.join(settings.BASE_DIR, obj.og_picture)
+            if os.path.exists(file_path):
+                return os.path.getsize(file_path)
+        return 0
 
-    # def item_enclosure_mime_type(self, obj):
-    #     if obj.image:
-    #         return obj.image.content_type
-    #     return None
+    def item_enclosure_mime_type(self, obj):
+        """Возвращает MIME-тип (обязательно для RSS)"""
+        if obj.og_picture:
+            return 'image/png'
+        return None
+    

@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sitemaps",
     "article",
     "photo",
     "tag",
@@ -59,7 +60,10 @@ WSGI_APPLICATION = "krasnoarsk.wsgi.application"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": ["krsk/templates", "templates"],
+        "DIRS": [
+            BASE_DIR / "krsk" / "templates", 
+            BASE_DIR / "templates"            
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

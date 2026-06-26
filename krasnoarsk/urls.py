@@ -26,9 +26,20 @@ from article.views import (
     check_content,
     tagging,
     get_file,
-    PostSitemap,
 )
 from worlds.views import worlds_list, worlds_group, worlds_detail
+
+# Импорты карт сайта
+from article.sitemaps import PostSitemap, CategorySitemap
+from worlds.sitemaps import ParallelSitemap
+
+# Словарь с картами сайта
+sitemaps = {
+    'posts': PostSitemap,
+    'categories': CategorySitemap,
+    'worlds': ParallelSitemap,
+}
+
 
 handler403 = "photo.views.tr_handler403"
 handler404 = "photo.views.tr_handler404"
@@ -46,10 +57,11 @@ urlpatterns = [
     path('worlds/<int:pk>/', worlds_detail, name='worlds_detail'),
     path("<filename>.txt", get_file, name="get_file"),
     path("summernote/", include("django_summernote.urls")),
+    # Подключаем sitemap с несколькими разделами
     path(
         "sitemap.xml",
         sitemap,
-        {"sitemaps": {"posts": PostSitemap}},
+        {"sitemaps": sitemaps},
         name="django.contrib.sitemaps.views.sitemap",
     ),
 ]

@@ -4,7 +4,6 @@ from django.conf import settings
 from django import template
 from django.db.models import Q, Count, QuerySet
 from datetime import timedelta
-from sorl.thumbnail import get_thumbnail
 
 from krasnoarsk.utils import create_opengraph_image_for_obj
 from worlds.models import Parallel
@@ -52,9 +51,6 @@ def get_meta(context):
                 else:
                     if v.tags:
                         keywords_lst += [tag.strip() for tag in v.tags.split(",")]
-                # im = get_thumbnail(v.picture, '1024x512', crop='center', quality=85)
-                # image = f"{domain.rstrip('/')}{im.url}"
-
                 image = domain.rstrip('/') + create_opengraph_image_for_obj(v)
 
                 print(image)

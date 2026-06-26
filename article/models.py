@@ -60,7 +60,9 @@ class Category(models.Model):
             return mark_safe(html)
         except Exception as e:
             return f"(Ошибка при формировании миниатюры: {e})"    
-            
+        
+    def get_absolute_url(self):
+        return reverse("post_list") + f"?category={self.slug}"
 
     def save(self, *args, **kwargs):
         self.slug = cyr2lat(self.title)
