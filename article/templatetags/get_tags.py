@@ -2,7 +2,7 @@ from article.models import Category, Post
 from django.utils import timezone
 from django.conf import settings
 from django import template
-from django.db.models import QuerySet
+from django.db.models import Q, Count, QuerySet
 from datetime import timedelta
 from sorl.thumbnail import get_thumbnail
 
@@ -168,6 +168,7 @@ def get_populate_qs(context):
     """
     Популярные посты
     """
+    now = timezone.now()
     category = context.get("category")
     post_obj = context.get("post")
     populate_qs = Post.objects.for_user()
@@ -176,9 +177,7 @@ def get_populate_qs(context):
         populate_qs = populate_qs.exclude(category=post_obj.category)
     elif category:
         populate_qs = populate_qs.exclude(category__slug=category)
-    populate_qs = populate_qs.filter(
-        date_post__gte=(timezone.now() - timedelta(weeks=12))
-    )
+    populate_qs = populate_qs.filter(date_post__gte=(now - timedelta(weeks=5)))
     populate_qs = populate_qs.order_by("-view")[:20]
     category_dct = dict(Category.objects.values_list("id", "title"))
     for post in populate_qs:
@@ -193,28 +192,13 @@ def get_similar_qs(context):
     Посты близкие по тегам
     """
     news = context.get("post")
-    populate_qs = Post.objects.for_user()
-
-    tag_dct = dict()
-    for tag in news.tag.all():
-        for pk in populate_qs.filter(tag=tag).values_list('id', flat=True):
-            tag_dct.setdefault(pk, 0)
-            tag_dct[pk] += 1
-    tag_lst = list()
-    for k, v in tag_dct.items():
-        tag_lst.append((v, k))
-
-    res = sorted(tag_lst, reverse=True)
-
-    pk_lst = [z[1] for z in res[:25] if z[1] != news.id]
-    pk_lst = pk_lst[:24]
-
-    populate_qs = Post.objects.filter(pk__in=pk_lst)
+    news_tags = list(news.tag.values_list('id', flat=True))
+    if not news_tags:
+        return {"populate_qs": Post.objects.none()}
+    
+    populate_qs = Post.objects.for_user().filter(tag__in=news_tags).exclude(id=news.id).annotate(tag_count=Count('tag', filter=Q(tag__in=news_tags))).order_by('-tag_count', '-date_post').prefetch_related('tag', 'category')[:15]
     category_dct = dict(Category.objects.values_list("id", "title"))
     for post in populate_qs:
         post.category_name = category_dct[post.category_id]
         post.has_image = bool(post.image)
-
-    return {
-        "populate_qs": populate_qs,
-    }
+    return {"populate_qs": populate_qs}
