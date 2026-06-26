@@ -30,7 +30,6 @@ from article.views import (
 )
 from worlds.views import worlds_list, worlds_group, worlds_detail
 
-
 handler403 = "photo.views.tr_handler403"
 handler404 = "photo.views.tr_handler404"
 handler500 = "photo.views.tr_handler500"

@@ -1,5 +1,4 @@
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 import pytz
 from datetime import datetime, timedelta
 from article.models import Post

@@ -4,7 +4,7 @@ from photo.models import Photo
 
 @admin.register(Photo)
 class PhotoAdmin(admin.ModelAdmin):
-    list_display = ("id", "title", "image_img", "created", "image_size", "content_type")
+    list_display = ("id", "image_img", "title", "description", "created", "image_size")
     search_fields = ("title",)
     list_filter = ("image_size", "created",)
     fieldsets = (

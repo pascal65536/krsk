@@ -7,7 +7,6 @@ from PIL import Image, ImageDraw, ImageFont
 from django.db.models.fields.files import ImageFieldFile
 from django.conf import settings
 
-
 def cyr2lat(cyrillic):
     if not cyrillic:
         return cyrillic
@@ -275,8 +274,6 @@ def create_opengraph_image_for_obj(obj):
 
     text = getattr(obj, 'title', '')
     wrapped_text = "\n".join(textwrap.wrap(text, width=30))
-
-    # import ipdb; ipdb.sset_trace()
 
     bbox = draw.multiline_textbbox((0, 0), wrapped_text, font=font)
     text_width = bbox[2]

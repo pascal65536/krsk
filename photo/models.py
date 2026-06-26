@@ -2,6 +2,7 @@ import uuid
 from django.db import models
 from django.utils.safestring import mark_safe
 from django.conf import settings
+from sorl.thumbnail import get_thumbnail
 
 
 def get_file_path(instance, filename):
@@ -43,12 +44,14 @@ class Photo(models.Model):
         Вывод картинок в админке
         """
         if not self.picture:
-            return "(Нет изображения)"
-        html = [
-            f'<a href="{self.picture.url}" target="_blank">',
-            f'<img src="{self.picture.url}" width="100"/></a>',
-        ]
-        return mark_safe(''.join(html))
+            return "(No)"
+
+        try:
+            im = get_thumbnail(self.picture, '200x120', crop='center', quality=33)
+            html = f'<a href="{self.url}" target="_blank"><img src="{im.url}" width="100"/></a>'
+            return mark_safe(html)
+        except Exception as e:
+            return f"(Ошибка при формировании миниатюры: {e})"                    
 
     def __str__(self):
         return self.title

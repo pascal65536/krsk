@@ -6,6 +6,7 @@ from article.managers import PostManager
 from photo.models import Photo
 from tag.models import Tag
 from django.conf import settings
+from sorl.thumbnail import get_thumbnail
 
 
 class Category(models.Model):
@@ -51,12 +52,15 @@ class Category(models.Model):
         Вывод картинок в админке
         """
         if not self.image:
-            return "(Нет изображения)"
-        html = [
-            f'<a href="{self.image.picture.url}" target="_blank">',
-            f'<img src="{self.image.picture.url}" width="100"/></a>',
-        ]
-        return mark_safe("".join(html))
+            return "(No)"
+
+        try:
+            im = get_thumbnail(self.image.picture, '200x120', crop='center', quality=33)
+            html = f'<a href="{self.image.url}" target="_blank"><img src="{im.url}" width="100"/></a>'
+            return mark_safe(html)
+        except Exception as e:
+            return f"(Ошибка при формировании миниатюры: {e})"    
+            
 
     def save(self, *args, **kwargs):
         self.slug = cyr2lat(self.title)
@@ -86,7 +90,7 @@ class Post(models.Model):
     )
     tag = models.ManyToManyField(Tag, verbose_name="Тег", blank=True)
     date_post = models.DateTimeField(verbose_name="Дата публикации")
-    view = models.IntegerField(verbose_name="Яндекс.метрика", default=0)
+    view = models.IntegerField(verbose_name="Число просмотров", default=0)
     plagiarism = models.FloatField(verbose_name="Плагиат", default=0)
     plagiarism_json = models.JSONField(
         verbose_name="Результат проверки на плагиат", blank=True, null=True
@@ -127,12 +131,14 @@ class Post(models.Model):
         Вывод картинок в админке
         """
         if not self.image:
-            return "(Нет изображения)"
-        html = [
-            f'<a href="{self.image.picture.url}" target="_blank">',
-            f'<img src="{self.image.picture.url}" width="100"/></a>',
-        ]
-        return mark_safe("".join(html))
+            return "(No)"
+
+        try:
+            im = get_thumbnail(self.image.picture, '200x120', crop='center', quality=33)
+            html = f'<a href="{self.image.url}" target="_blank"><img src="{im.url}" width="100"/></a>'
+            return mark_safe(html)
+        except Exception as e:
+            return f"(Ошибка при формировании миниатюры: {e})"    
 
     def update_tags(self):
         text = " ".join(filter(None, [self.text, self.lead, self.title, self.authors]))

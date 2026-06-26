@@ -7,7 +7,6 @@ from PIL import Image, ExifTags
 from datetime import datetime
 from sorl.thumbnail import get_thumbnail
 
-
 def get_file_path(instance, filename):
     ext = filename.split(".")[-1]
     uid = str(uuid.uuid4()) or "JPG"
@@ -89,7 +88,7 @@ class Parallel(models.Model):
         Вывод миниатюры картинки в админке.
         """
         if not self.picture:
-            return "(Нет изображения)"
+            return "(No)"
         try:
             im = get_thumbnail(self.picture, '200x200', crop='center', quality=85)
             html = f'<a href="{self.picture.url}" target="_blank"><img src="{im.url}" width="200"/></a>'

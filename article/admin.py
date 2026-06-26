@@ -19,7 +19,7 @@ class PostAdmin(SummernoteModelAdmin):
         "plagiarism",
         "view",
     )
-    list_filter = ("date_post", "plagiarism", "category", "authors", )
+    list_filter = ("date_post", "category", "authors")
     fieldsets = (
         (
             None,
